@@ -103,4 +103,23 @@ class AuthorControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Sam"));
     }
+
+    @Test
+    void searchAuthors_byNameAndCountry_success() throws Exception {
+        List<Author> authors = List.of(new Author("Jane Austen", "jane@example.com", 41, "UK"));
+        when(authorService.searchAuthors("Jane", "UK")).thenReturn(authors);
+
+        mockMvc.perform(get("/searchAuthors?name=Jane&country=UK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Jane Austen"));
+    }
+
+    @Test
+    void searchAuthors_byNameOnly_success() throws Exception {
+        List<Author> authors = List.of(new Author("Jane Austen", "jane@example.com", 41, "UK"));
+        when(authorService.searchAuthors("Jane", null)).thenReturn(authors);
+
+        mockMvc.perform(get("/searchAuthors?name=Jane"))
+                .andExpect(status().isOk());
+    }
 }

@@ -48,4 +48,14 @@ public class AuthorController {
         List<Author> authors = authorService.getAllAuthors();
         return new ResponseEntity<>(authors, HttpStatus.OK);
     }
+
+    @GetMapping("/searchAuthors")
+    public ResponseEntity<List<Author>> searchAuthors(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String country) {
+
+        List<Author> authors = authorService.searchAuthors(name, country);
+        return new ResponseEntity<>(authors, HttpStatus.OK);
+    }
+
 }

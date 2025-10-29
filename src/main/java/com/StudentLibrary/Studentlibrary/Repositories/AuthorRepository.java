@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 public interface AuthorRepository extends JpaRepository<Author,Integer> {
@@ -20,4 +21,10 @@ public interface AuthorRepository extends JpaRepository<Author,Integer> {
     @Modifying
     @Query("delete Author a where a.id=:given_id")
     int deleteCustom(@Param("given_id") int id);
+
+    List<Author> findByNameContainingIgnoreCase(String name);
+
+    List<Author> findByCountryIgnoreCase(String country);
+
+    List<Author> findByNameContainingIgnoreCaseAndCountryIgnoreCase(String name, String country);
 }

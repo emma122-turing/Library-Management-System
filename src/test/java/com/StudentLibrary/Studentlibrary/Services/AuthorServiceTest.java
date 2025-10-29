@@ -126,4 +126,51 @@ class AuthorServiceTest {
         assertEquals(2, result.size());
         verify(authorRepository).findAll();
     }
+
+    @Test
+    void searchAuthors_byNameAndCountry_callsRepo() {
+        List<Author> authors = List.of(new Author("Jane", "jane@example.com", 41, "UK"));
+        when(authorRepository.findByNameContainingIgnoreCaseAndCountryIgnoreCase("Jane", "UK"))
+                .thenReturn(authors);
+
+        List<Author> result = authorService.searchAuthors("Jane", "UK");
+
+        assertEquals(1, result.size());
+        assertEquals("Jane", result.get(0).getName());
+        verify(authorRepository)
+                .findByNameContainingIgnoreCaseAndCountryIgnoreCase("Jane", "UK");
+    }
+
+    @Test
+    void searchAuthors_byName_callsRepo() {
+        List<Author> authors = List.of(new Author("Jane", "jane@example.com", 41, "UK"));
+        when(authorRepository.findByNameContainingIgnoreCase("Jane")).thenReturn(authors);
+
+        List<Author> result = authorService.searchAuthors("Jane", null);
+
+        assertEquals(1, result.size());
+        verify(authorRepository).findByNameContainingIgnoreCase("Jane");
+    }
+
+    @Test
+    void searchAuthors_byCountry_callsRepo() {
+        List<Author> authors = List.of(new Author("John", "john@example.com", 35, "US"));
+        when(authorRepository.findByCountryIgnoreCase("US")).thenReturn(authors);
+
+        List<Author> result = authorService.searchAuthors(null, "US");
+
+        assertEquals(1, result.size());
+        verify(authorRepository).findByCountryIgnoreCase("US");
+    }
+
+    @Test
+    void searchAuthors_noParams_callsFindAll() {
+        List<Author> authors = List.of(new Author("Any", "any@example.com", 25, "CA"));
+        when(authorRepository.findAll()).thenReturn(authors);
+
+        List<Author> result = authorService.searchAuthors(null, null);
+
+        assertEquals(1, result.size());
+        verify(authorRepository).findAll();
+    }
 }

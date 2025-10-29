@@ -31,4 +31,15 @@ public class AuthorService {
     public List<Author> getAllAuthors() {
         return authorRepository.findAll();
     }
+
+    public List<Author> searchAuthors(String name, String country) {
+        if (name != null && country != null) {
+            return authorRepository.findByNameContainingIgnoreCaseAndCountryIgnoreCase(name, country);
+        } else if (name != null) {
+            return authorRepository.findByNameContainingIgnoreCase(name);
+        } else if (country != null) {
+            return authorRepository.findByCountryIgnoreCase(country);
+        }
+        return authorRepository.findAll();
+    }
 }

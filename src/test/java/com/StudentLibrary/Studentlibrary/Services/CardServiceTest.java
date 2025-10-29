@@ -95,4 +95,23 @@ class CardServiceTest {
         assertSame(card, student.getCard());
         assertSame(student, card.getStudent());
     }
+
+    @Test
+    void reactivate_callsRepositoryWithCorrectParams() {
+        doNothing().when(cardRepository).reactivateCard(eq(2), anyString());
+
+        cardService.reactivate(2);
+
+        verify(cardRepository, times(1)).reactivateCard(eq(2), eq("ACTIVATED"));
+    }
+
+    @Test
+    void getCardStatus_returnsStatus() {
+        when(cardRepository.findCardStatus(3)).thenReturn("ACTIVATED");
+
+        String status = cardService.getCardStatus(3);
+
+        assertEquals("ACTIVATED", status);
+        verify(cardRepository).findCardStatus(3);
+    }
 }

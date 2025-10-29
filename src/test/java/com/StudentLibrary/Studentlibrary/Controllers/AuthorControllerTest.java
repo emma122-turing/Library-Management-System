@@ -11,8 +11,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -76,5 +79,28 @@ class AuthorControllerTest {
                 .andExpect(content().string("Author deleted!!"));
 
         Mockito.verify(authorService).deleteAuthor(eq(id));
+    }
+
+    @Test
+    void getAuthorById_success() throws Exception {
+        Author author = new Author();
+        author.setId(1);
+        author.setName("John Doe");
+
+        when(authorService.getAuthorById(1)).thenReturn(author);
+
+        mockMvc.perform(get("/getAuthorById?id=1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("John Doe"));
+    }
+
+    @Test
+    void getAllAuthors_success() throws Exception {
+        List<Author> authors = List.of(new Author("Sam", "Sam@example.com", 20, "UK"));
+        when(authorService.getAllAuthors()).thenReturn(authors);
+
+        mockMvc.perform(get("/getAllAuthors"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Sam"));
     }
 }

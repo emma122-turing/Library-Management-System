@@ -8,7 +8,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -81,5 +86,44 @@ class AuthorServiceTest {
         authorService.deleteAuthor(id);
 
         verify(authorRepository).deleteCustom(eq(id));
+    }
+
+    @Test
+    void getAuthorById_returnsAuthor() {
+        Author author = new Author();
+        author.setId(1);
+        author.setName("Jane Doe");
+
+        when(authorRepository.findById(1)).thenReturn(Optional.of(author));
+
+        Author result = authorService.getAuthorById(1);
+
+        assertNotNull(result);
+        assertEquals("Jane Doe", result.getName());
+        verify(authorRepository).findById(1);
+    }
+
+    @Test
+    void getAuthorById_returnsNullWhenNotFound() {
+        when(authorRepository.findById(99)).thenReturn(Optional.empty());
+
+        Author result = authorService.getAuthorById(99);
+
+        assertNull(result);
+        verify(authorRepository).findById(99);
+    }
+
+    @Test
+    void getAllAuthors_returnsAll() {
+        List<Author> authors = List.of(
+                new Author("A", "a@example.com", 40, "UK"),
+                new Author("B", "b@example.com", 30, "US")
+        );
+        when(authorRepository.findAll()).thenReturn(authors);
+
+        List<Author> result = authorService.getAllAuthors();
+
+        assertEquals(2, result.size());
+        verify(authorRepository).findAll();
     }
 }

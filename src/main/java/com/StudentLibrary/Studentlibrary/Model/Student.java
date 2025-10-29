@@ -21,6 +21,9 @@ public class Student {
     private int age;
     private String country;
 
+    @Column(name = "total_fine")
+    private double totalFine;
+
 
     @OneToOne
     @JoinColumn
@@ -107,5 +110,13 @@ public class Student {
 
     public void setUpdatedOn(Date updatedOn) {
         this.updatedOn = updatedOn;
+    }
+
+    public double getTotalFine() {
+        return totalFine;
+    }
+
+    public void setTotalFine(double totalFine) {
+        this.totalFine = totalFine;
     }
 }

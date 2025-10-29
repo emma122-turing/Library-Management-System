@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class StudentController {
+
     @Autowired
     StudentService studentService;
 
@@ -30,13 +31,15 @@ public class StudentController {
         return new ResponseEntity<>("student successfully deleted!!",HttpStatus.OK);
     }
 
+    @GetMapping("/students/fine/check")
+    public ResponseEntity<Double> getFine(@RequestParam int studentId) {
+        double fine = studentService.getFine(studentId);
+        return new ResponseEntity<>(fine, HttpStatus.OK);
+    }
 
-
-
-
-
-
-
-
-
+    @PutMapping("/students/fine/clear")
+    public ResponseEntity<String> clearFine(@RequestParam int studentId) {
+        studentService.clearFine(studentId);
+        return new ResponseEntity<>("Fine cleared successfully", HttpStatus.ACCEPTED);
+    }
 }

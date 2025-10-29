@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -91,5 +93,31 @@ class StudentServiceTest {
         InOrder inOrder = inOrder(cardService, studentRepository);
         inOrder.verify(cardService).deactivate(1);
         inOrder.verify(studentRepository).deleteCustom(1);
+    }
+
+    @Test
+    void getFine_returnsFineValue() {
+        Student student = new Student();
+        student.setId(1);
+        student.setTotalFine(120);
+        when(studentRepository.findById(1)).thenReturn(Optional.of(student));
+
+        double fine = studentService.getFine(1);
+
+        assertEquals(120, fine);
+        verify(studentRepository).findById(1);
+    }
+
+    @Test
+    void clearFine_resetsFine() {
+        Student student = new Student();
+        student.setId(2);
+        student.setTotalFine(200);
+        when(studentRepository.findById(2)).thenReturn(Optional.of(student));
+
+        studentService.clearFine(2);
+
+        assertEquals(0, student.getTotalFine());
+        verify(studentRepository).save(student);
     }
 }

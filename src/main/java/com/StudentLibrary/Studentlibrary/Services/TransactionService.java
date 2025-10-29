@@ -59,44 +59,40 @@ public class TransactionService {
         return transaction.getTransactionId();
     }
 
-    public String returnBooks(int cardId,int bookId)throws Exception{
-        List<Transaction> transactions=transactionRepository.findByCard_Book(cardId,bookId,TransactionStatus.SUCCESSFUL,true);
-        Transaction last_issue_transaction=transactions.get(transactions.size()-1);
-        //Last transaction that has been done ^^^^
-        Date issueDate=last_issue_transaction.getTransactionDate();
-        Long issueTime=Math.abs(issueDate.getTime()-System.currentTimeMillis());
-        long number_of_days_passed= TimeUnit.DAYS.convert(issueTime,TimeUnit.MILLISECONDS);
-        int fine=0;
-        if (number_of_days_passed>max_days_allowed){
-            fine=(int)Math.abs(number_of_days_passed-max_days_allowed)*fine_per_day;
+    public String returnBooks(int cardId, int bookId) {
+        List<Transaction> transactions = transactionRepository.findByCard_Book(cardId, bookId, TransactionStatus.SUCCESSFUL, true);
+        Transaction last_issue_transaction = transactions.get(transactions.size() - 1);
+        Date issueDate = last_issue_transaction.getTransactionDate();
+
+        long issueTime = Math.abs(issueDate.getTime() - System.currentTimeMillis());
+        long number_of_days_passed = TimeUnit.DAYS.convert(issueTime, TimeUnit.MILLISECONDS);
+
+        int fine = 0;
+        if (number_of_days_passed > max_days_allowed) {
+            fine = (int) Math.abs(number_of_days_passed - max_days_allowed) * fine_per_day;
         }
-        Card card=last_issue_transaction.getCard();
-        Book book=last_issue_transaction.getBook();
+
+        Card card = last_issue_transaction.getCard();
+        Book book = last_issue_transaction.getBook();
+
         book.setCard(null);
         book.setAvailable(true);
         bookRepository.updateBook(book);
-        Transaction new_transaction=new Transaction();
+
+        // Add fine to the student
+        if (fine > 0) {
+            Student student = card.getStudent();
+            student.setTotalFine(student.getTotalFine() + fine);
+        }
+
+        Transaction new_transaction = new Transaction();
         new_transaction.setBook(book);
         new_transaction.setCard(card);
         new_transaction.setFineAmount(fine);
         new_transaction.setIssueOperation(false);
         new_transaction.setTransactionStatus(TransactionStatus.SUCCESSFUL);
         transactionRepository.save(new_transaction);
+
         return new_transaction.getTransactionId();
-
-
-
-
-
-
-
-
-
-
     }
-
-
-
-
-
 }

@@ -34,4 +34,17 @@ public class StudentService {
         cardService.deactivate(id);
         studentRepository.deleteCustom(id);
     }
+
+    public double getFine(int studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        return student.getTotalFine();
+    }
+
+    public void clearFine(int studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        student.setTotalFine(0);
+        studentRepository.save(student);
+    }
 }

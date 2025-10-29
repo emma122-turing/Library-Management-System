@@ -14,12 +14,8 @@ public class StudentService {
 
     Logger logger= LoggerFactory.getLogger(StudentService.class);
 
-
     @Autowired
     StudentRepository studentRepository ;
-
-    @Autowired
-    CardRepository cardRepository;
 
     @Autowired
     CardService cardService;
@@ -28,20 +24,14 @@ public class StudentService {
 
         Card card=cardService.createCard(student);
         logger.info("The card for the student{} is created with the card details{}",student,card);
-
-
     }
+
     public int  updateStudent(Student student){
         return studentRepository.updateStudentDetails(student);
-
-
     }
 
-
     public void deleteStudent(int id ){
-
         cardService.deactivate(id);
         studentRepository.deleteCustom(id);
-
     }
 }

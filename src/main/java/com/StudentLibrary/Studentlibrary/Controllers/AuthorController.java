@@ -16,21 +16,21 @@ public class AuthorController {
     AuthorService authorService;
 
     @PostMapping("/createAuthor")
-    public ResponseEntity createAuthor(@RequestBody Author author){
+    public ResponseEntity<?> createAuthor(@RequestBody Author author){
         authorService.createAuthor(author);
-        return new ResponseEntity("Author created", HttpStatus.CREATED);
+        return new ResponseEntity<>("Author created", HttpStatus.CREATED);
     }
     @PutMapping("/updateAuthor")
-    public ResponseEntity updateAuthor(@RequestBody Author author){
+    public ResponseEntity<?> updateAuthor(@RequestBody Author author){
         authorService.updateAuthor(author);
-        return new ResponseEntity("Auhtor upadted!!",HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Auhtor upadted!!",HttpStatus.ACCEPTED);
 
     }
 
     @DeleteMapping("/deleteAuthor")
-    public ResponseEntity deleteAuthor(@RequestParam("id") int id){
+    public ResponseEntity<?> deleteAuthor(@RequestParam("id") int id){
         authorService.deleteAuthor(id);
-        return new ResponseEntity("Author deleted!!",HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Author deleted!!",HttpStatus.ACCEPTED);
 
     }
 

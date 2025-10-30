@@ -1,6 +1,8 @@
 package com.StudentLibrary.Studentlibrary.Services;
 
+import com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO;
 import com.StudentLibrary.Studentlibrary.Model.Book;
+import com.StudentLibrary.Studentlibrary.Model.Genre;
 import com.StudentLibrary.Studentlibrary.Repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,8 @@ public class BookService {
 
     public void createBook(Book book){
         bookRepository.save(book);
-
-
-
     }
+
     //Either giving you all the available books
     //OR gicing you all the non-available books
     public List<Book> getBooks(String genre, boolean isAvailable,String author){
@@ -33,13 +33,13 @@ public class BookService {
             return bookRepository.findBooksByAuthor(author,isAvailable);
         }
         return bookRepository.findBooksByAvailability(isAvailable);
-
-
-
-
-
-
-
     }
 
+    public List<BookAnalyticsDTO> getTopBooksByGenre(Genre genre) {
+        return bookRepository.findTopBooksByGenre(genre);
+    }
+
+    public List<BookAnalyticsDTO> getTopAuthors() {
+        return bookRepository.findTopAuthors();
+    }
 }

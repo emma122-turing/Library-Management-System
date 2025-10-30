@@ -1,5 +1,6 @@
 package com.StudentLibrary.Studentlibrary.Services;
 
+import com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO;
 import com.StudentLibrary.Studentlibrary.Model.*;
 import com.StudentLibrary.Studentlibrary.Repositories.BookRepository;
 import com.StudentLibrary.Studentlibrary.Repositories.CardRepository;
@@ -8,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -112,5 +112,9 @@ public class TransactionService {
                     return days > max_days_allowed;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public List<BookAnalyticsDTO> getTopBorrowedBooks() {
+        return transactionRepository.findTopBorrowedBooks();
     }
 }

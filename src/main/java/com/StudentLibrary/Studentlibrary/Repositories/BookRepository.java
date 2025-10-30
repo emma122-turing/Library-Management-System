@@ -1,6 +1,8 @@
 package com.StudentLibrary.Studentlibrary.Repositories;
 
 import com.StudentLibrary.Studentlibrary.Model.Book;
+import com.StudentLibrary.Studentlibrary.Model.Genre;
+import com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +31,15 @@ public interface BookRepository extends JpaRepository<Book,Integer> {
     @Query("select b from Book b where b.available=:isAvailable")
     List<Book> findBooksByAvailability(@Param("isAvailable") boolean isAvailable);
 
+    @Query("SELECT new com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO(b.name, COUNT(t)) " +
+            "FROM Transaction t JOIN t.book b " +
+            "WHERE b.genre = :genre AND t.isIssueOperation = true " +
+            "GROUP BY b.name ORDER BY COUNT(t) DESC")
+    List<BookAnalyticsDTO> findTopBooksByGenre(@Param("genre") Genre genre);
+
+    @Query("SELECT new com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO(b.author.name, COUNT(t)) " +
+            "FROM Transaction t JOIN t.book b " +
+            "WHERE t.isIssueOperation = true " +
+            "GROUP BY b.author.name ORDER BY COUNT(t) DESC")
+    List<BookAnalyticsDTO> findTopAuthors();
 }

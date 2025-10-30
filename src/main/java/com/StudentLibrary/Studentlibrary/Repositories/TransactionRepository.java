@@ -1,5 +1,6 @@
 package com.StudentLibrary.Studentlibrary.Repositories;
 
+import com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO;
 import com.StudentLibrary.Studentlibrary.Model.Card;
 import com.StudentLibrary.Studentlibrary.Model.Transaction;
 import com.StudentLibrary.Studentlibrary.Model.TransactionStatus;
@@ -26,4 +27,10 @@ public interface TransactionRepository extends JpaRepository<Transaction,Integer
 
     @Query("SELECT t FROM Transaction t WHERE t.card = :card ORDER BY t.transactionDate DESC")
     List<Transaction> findByCard(@Param("card") Card card);
+
+    @Query("SELECT new com.StudentLibrary.Studentlibrary.DTO.BookAnalyticsDTO(t.book.name, COUNT(t)) " +
+            "FROM Transaction t " +
+            "WHERE t.isIssueOperation = true " +
+            "GROUP BY t.book.name ORDER BY COUNT(t) DESC")
+    List<BookAnalyticsDTO> findTopBorrowedBooks();
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -94,5 +95,22 @@ public class TransactionService {
         transactionRepository.save(new_transaction);
 
         return new_transaction.getTransactionId();
+    }
+
+    public List<Transaction> getBorrowingHistory(int studentId) {
+        Card card = cardRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Card not found for student ID: " + studentId));
+        return transactionRepository.findByCard(card);
+    }
+
+    public List<Transaction> getOverdueBooks() {
+        Date now = new Date();
+        List<Transaction> issuedTransactions = transactionRepository.findIssuedTransactions(TransactionStatus.SUCCESSFUL);
+        return issuedTransactions.stream()
+                .filter(t -> {
+                    long days = TimeUnit.DAYS.convert(now.getTime() - t.getTransactionDate().getTime(), TimeUnit.MILLISECONDS);
+                    return days > max_days_allowed;
+                })
+                .collect(Collectors.toList());
     }
 }

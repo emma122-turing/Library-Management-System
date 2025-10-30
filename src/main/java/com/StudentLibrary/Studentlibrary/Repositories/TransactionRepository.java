@@ -1,5 +1,6 @@
 package com.StudentLibrary.Studentlibrary.Repositories;
 
+import com.StudentLibrary.Studentlibrary.Model.Card;
 import com.StudentLibrary.Studentlibrary.Model.Transaction;
 import com.StudentLibrary.Studentlibrary.Model.TransactionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,9 @@ public interface TransactionRepository extends JpaRepository<Transaction,Integer
                                             @Param("isIssue") boolean isIssue);
 
 
+    @Query("SELECT t FROM Transaction t WHERE t.transactionStatus = :status AND t.isIssueOperation = true")
+    List<Transaction> findIssuedTransactions(@Param("status") TransactionStatus status);
 
+    @Query("SELECT t FROM Transaction t WHERE t.card = :card ORDER BY t.transactionDate DESC")
+    List<Transaction> findByCard(@Param("card") Card card);
 }

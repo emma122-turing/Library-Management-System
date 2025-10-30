@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Transactional
 public interface CardRepository extends JpaRepository<Card,Integer> {
@@ -21,4 +22,7 @@ public interface CardRepository extends JpaRepository<Card,Integer> {
 
     @Query("select c.cardStatus from Card c where c.student.id = :studentId")
     String findCardStatus(@Param("studentId") int studentId);
+
+    @Query("SELECT c FROM Card c WHERE c.student.id = :studentId")
+    Optional<Card> findByStudentId(@Param("studentId") int studentId);
 }

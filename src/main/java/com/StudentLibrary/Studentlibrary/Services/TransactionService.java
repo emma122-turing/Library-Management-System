@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 public class TransactionService {
 
     @Autowired
+    private ReservationService reservationService;
+
+    @Autowired
     TransactionRepository transactionRepository;
     @Autowired
     BookRepository bookRepository;
@@ -93,6 +96,8 @@ public class TransactionService {
         new_transaction.setIssueOperation(false);
         new_transaction.setTransactionStatus(TransactionStatus.SUCCESSFUL);
         transactionRepository.save(new_transaction);
+
+        reservationService.handleBookReturn(book);
 
         return new_transaction.getTransactionId();
     }

@@ -31,6 +31,9 @@ class TransactionServiceTest {
     @InjectMocks
     TransactionService transactionService;
 
+    @Mock
+    ReservationService reservationService;
+
     private Book book;
     private Card card;
     private Student student;
@@ -71,47 +74,51 @@ class TransactionServiceTest {
 
     @Test
     void returnBooks_calculatesFineWhenOverdueAndCreatesTransaction() {
-        // Create an issue transaction older than max_days_allowed
+        // 10 days old transaction
         Transaction issueTx = new Transaction();
-        issueTx.setTransactionDate(new Date(System.currentTimeMillis() - 10L * 24 * 60 * 60 * 1000)); // 10 days ago
+        issueTx.setTransactionDate(new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(10)));
         issueTx.setTransactionStatus(TransactionStatus.SUCCESSFUL);
         issueTx.setIssueOperation(true);
         issueTx.setCard(card);
         issueTx.setBook(book);
 
-        when(transactionRepository.findByCard_Book(eq(11), eq(101), eq(TransactionStatus.SUCCESSFUL), eq(true)))
+        when(transactionRepository.findByCard_Book(eq(11), eq(101),
+                eq(TransactionStatus.SUCCESSFUL), eq(true)))
                 .thenReturn(List.of(issueTx));
 
         String id = transactionService.returnBooks(11, 101);
 
         assertNotNull(id);
-        // 10 - 7 = 3 days overdue, fine_per_day=10 => 30
-        assertEquals(30, issueTx.getCard().getStudent().getTotalFine());
         assertTrue(book.isAvailable());
         assertNull(book.getCard());
+        assertEquals(30, student.getTotalFine()); // 10 - 7 = 3 days * 10 = 30
         verify(bookRepository).updateBook(book);
         verify(transactionRepository).save(any(Transaction.class));
+        verify(reservationService).handleBookReturn(book);
     }
 
     @Test
     void returnBooks_noFineWhenWithinLimit() {
+        // 3 days old transaction
         Transaction issueTx = new Transaction();
-        issueTx.setTransactionDate(new Date(System.currentTimeMillis() - 3L * 24 * 60 * 60 * 1000)); // 3 days ago
+        issueTx.setTransactionDate(new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(3)));
         issueTx.setTransactionStatus(TransactionStatus.SUCCESSFUL);
         issueTx.setIssueOperation(true);
         issueTx.setCard(card);
         issueTx.setBook(book);
 
-        when(transactionRepository.findByCard_Book(eq(11), eq(101), eq(TransactionStatus.SUCCESSFUL), eq(true)))
+        when(transactionRepository.findByCard_Book(eq(11), eq(101),
+                eq(TransactionStatus.SUCCESSFUL), eq(true)))
                 .thenReturn(List.of(issueTx));
 
         String id = transactionService.returnBooks(11, 101);
 
         assertNotNull(id);
-        assertEquals(0, student.getTotalFine());
+        assertEquals(0, student.getTotalFine()); // no fine
         assertTrue(book.isAvailable());
         verify(bookRepository).updateBook(book);
         verify(transactionRepository).save(any(Transaction.class));
+        verify(reservationService).handleBookReturn(book);
     }
 
     @Test

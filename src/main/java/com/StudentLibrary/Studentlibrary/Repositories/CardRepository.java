@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -25,4 +27,8 @@ public interface CardRepository extends JpaRepository<Card,Integer> {
 
     @Query("SELECT c FROM Card c WHERE c.student.id = :studentId")
     Optional<Card> findByStudentId(@Param("studentId") int studentId);
+
+    @Query("SELECT c FROM Card c WHERE c.cardStatus = 'ACTIVATED' AND " +
+            "c.id NOT IN (SELECT DISTINCT t.card.id FROM Transaction t WHERE t.transactionDate > :thresholdDate)")
+    List<Card> findInactiveCards(@Param("thresholdDate") Date thresholdDate);
 }

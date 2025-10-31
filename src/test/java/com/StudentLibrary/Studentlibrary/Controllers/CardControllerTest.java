@@ -10,10 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+
 
 @WebMvcTest(controllers = CardController.class)
 class CardControllerTest {
@@ -72,5 +73,27 @@ class CardControllerTest {
         mockMvc.perform(get("/cards/status").param("studentId", String.valueOf(studentId)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("INACTIVE"));
+    }
+
+    @Test
+    void manuallyDeactivateInactiveCards_success() throws Exception {
+        when(cardService.manuallyDeactivateInactiveCards()).thenReturn(4);
+
+        mockMvc.perform(post("/cards/deactivate/inactive"))
+                .andExpect(status().isAccepted())
+                .andExpect(content().string("Manual deactivation completed: 4 card(s) deactivated."));
+
+        verify(cardService, times(1)).manuallyDeactivateInactiveCards();
+    }
+
+    @Test
+    void manuallyDeactivateInactiveCards_zeroCards() throws Exception {
+        when(cardService.manuallyDeactivateInactiveCards()).thenReturn(0);
+
+        mockMvc.perform(post("/cards/deactivate/inactive"))
+                .andExpect(status().isAccepted())
+                .andExpect(content().string("Manual deactivation completed: 0 card(s) deactivated."));
+
+        verify(cardService, times(1)).manuallyDeactivateInactiveCards();
     }
 }

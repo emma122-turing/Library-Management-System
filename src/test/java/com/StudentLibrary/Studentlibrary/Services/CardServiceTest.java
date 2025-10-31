@@ -11,6 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -113,5 +117,71 @@ class CardServiceTest {
 
         assertEquals("ACTIVATED", status);
         verify(cardRepository).findCardStatus(3);
+    }
+
+    @Test
+    void testAutoDeactivateInactiveCards_deactivatesAndSaves() {
+        // Arrange
+        Card card1 = new Card();
+        card1.setId(1);
+        card1.setCardStatus(CardStatus.ACTIVATED);
+
+        Card card2 = new Card();
+        card2.setId(2);
+        card2.setCardStatus(CardStatus.ACTIVATED);
+
+        when(cardRepository.findInactiveCards(any(Date.class)))
+                .thenReturn(List.of(card1, card2));
+
+        // Act
+        cardService.autoDeactivateInactiveCards();
+
+        // Assert
+        verify(cardRepository, times(2)).save(any(Card.class));
+        assertEquals(CardStatus.DEACTIVATED, card1.getCardStatus());
+        assertEquals(CardStatus.DEACTIVATED, card2.getCardStatus());
+    }
+
+    @Test
+    void testAutoDeactivateInactiveCards_skipsEmptyList() {
+        when(cardRepository.findInactiveCards(any(Date.class)))
+                .thenReturn(Collections.emptyList());
+
+        cardService.autoDeactivateInactiveCards();
+
+        // Verify that no saves were attempted
+        verify(cardRepository, never()).save(any(Card.class));
+    }
+
+    @Test
+    void testManuallyDeactivateInactiveCards_returnsCount() {
+        Card card1 = new Card();
+        card1.setId(1);
+        card1.setCardStatus(CardStatus.ACTIVATED);
+
+        Card card2 = new Card();
+        card2.setId(2);
+        card2.setCardStatus(CardStatus.ACTIVATED);
+
+        when(cardRepository.findInactiveCards(any(Date.class)))
+                .thenReturn(List.of(card1, card2));
+
+        int count = cardService.manuallyDeactivateInactiveCards();
+
+        verify(cardRepository, times(2)).save(any(Card.class));
+        assertEquals(2, count);
+        assertEquals(CardStatus.DEACTIVATED, card1.getCardStatus());
+        assertEquals(CardStatus.DEACTIVATED, card2.getCardStatus());
+    }
+
+    @Test
+    void testManuallyDeactivateInactiveCards_emptyList() {
+        when(cardRepository.findInactiveCards(any(Date.class)))
+                .thenReturn(Collections.emptyList());
+
+        int count = cardService.manuallyDeactivateInactiveCards();
+
+        verify(cardRepository, never()).save(any(Card.class));
+        assertEquals(0, count);
     }
 }

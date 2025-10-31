@@ -31,4 +31,13 @@ public class CardController {
         String status = cardService.getCardStatus(studentId);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
+
+    @PostMapping("/deactivate/inactive")
+    public ResponseEntity<String> manuallyDeactivateInactiveCards() {
+        int total = cardService.manuallyDeactivateInactiveCards();
+        return new ResponseEntity<>(
+                "Manual deactivation completed: " + total + " card(s) deactivated.",
+                HttpStatus.ACCEPTED
+        );
+    }
 }
